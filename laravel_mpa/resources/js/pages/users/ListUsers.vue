@@ -1,14 +1,15 @@
 <script setup>
-import axios from 'axios';
-import { ref, onMounted, reactive } from 'vue';
+    import axios from 'axios';
+    import { ref, onMounted, reactive } from 'vue';
 
-const users = ref([]);
+    const users = ref([]);
 
-const form = reactive({
-        name: '',
-        email: '',
-        password: ''
-    }) ;
+    const form = reactive({
+            name: '',
+            email: '',
+            password: '',
+            
+        }) ;
 
     const getUsers = () => {
         axios.get('/api/users')
@@ -90,42 +91,41 @@ const form = reactive({
 
         <!-- Modal -->
     <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createUserModal">Add new user</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createUserModal">Add new user</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input v-model="form.name" type="text" class="form-control" id="name" placeholder="Enter full name">
+
+                        </div>
+                        <div class="form-group">
+                            <label for="email1">Email address</label>
+                            <input v-model="form.email" type="email" class="form-control" id="email" placeholder="Enter email">
+
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input v-model = "password" type="password" class="form-control" id="password" placeholder="Password">
+                        </div>
+                        <!-- <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                        </div> -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button @click="createUser" type="button" class="btn btn-success">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        <div class="modal-body">
-            <form>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input v-model="form.name" type="text" class="form-control" id="name" placeholder="Enter name">
-
-                </div>
-                <div class="form-group">
-                    <label for="email1">Email address</label>
-                    <input v-model="form.email" type="email" class="form-control" id="email1" placeholder="Enter email">
-
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input v-model = "password" type="password" class="form-control" id="password" placeholder="Password">
-                </div>
-                <!-- <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                    <label class="form-check-label" for="exampleCheck1">Remember me</label>
-                </div> -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button @click="createUser" type="button" class="btn btn-success">Save</button>
-                </div>
-        </form>
-    </div>
-
         </div>
-    </div>
     </div>
 </template>
