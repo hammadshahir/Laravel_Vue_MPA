@@ -1,8 +1,14 @@
 <script setup>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 
 const users = ref([]);
+
+const form = reactive({
+        name: '',
+        email: '',
+        password: ''
+    }) ;
 
     const getUsers = () => {
         axios.get('/api/users')
@@ -11,17 +17,34 @@ const users = ref([]);
         })
     }
 
+    const createUser = () => {
+        axios.post('/api/users', form)
+        .then((response) => {
+            // push data
+            users.value.unshift(response.data);
+            // Clear the Modal and close it
+            form.name = '';
+            form.email = '';
+            form.password = '';
+            $('#createUserModal').modal('hide');
+        });
+    }
+
     onMounted(() => {
         getUsers();
     });
 
 </script>
 <template>
+
     <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1 class="m-0">Users</h1>
+                        <button type="button" class="mt-2 mb-2 btn btn-success" data-toggle="modal" data-target="#createUserModal">
+                            Add new user
+                        </button>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -64,4 +87,45 @@ const users = ref([]);
                 </div>
             </div>
         </div>
+
+        <!-- Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModal">Add new user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input v-model="form.name" type="text" class="form-control" id="name" placeholder="Enter name">
+
+                </div>
+                <div class="form-group">
+                    <label for="email1">Email address</label>
+                    <input v-model="form.email" type="email" class="form-control" id="email1" placeholder="Enter email">
+
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input v-model = "password" type="password" class="form-control" id="password" placeholder="Password">
+                </div>
+                <!-- <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                </div> -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button @click="createUser" type="button" class="btn btn-success">Save</button>
+                </div>
+        </form>
+    </div>
+
+        </div>
+    </div>
+    </div>
 </template>
