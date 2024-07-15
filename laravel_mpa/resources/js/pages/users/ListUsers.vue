@@ -1,15 +1,12 @@
 <script setup>
     import axios from 'axios';
-    import { ref, onMounted, reactive } from 'vue';
+    import { ref, onMounted, reactive, watch } from 'vue';
+    import { Form, Field, useResetForm } from 'vee-validate';
+    import * as yup from 'yup';
+
+
 
     const users = ref([]);
-
-    const form = reactive({
-            name: '',
-            email: '',
-            password: '',
-            
-        }) ;
 
     const getUsers = () => {
         axios.get('/api/users')
@@ -18,17 +15,22 @@
         })
     }
 
-    const createUser = () => {
-        axios.post('/api/users', form)
+    const validationSchema = yup.object({
+        name: yup.string().required(),
+        email: yup.string().email().required(),
+        password : yup.string().required().min(8)
+    });
+
+    const createUser = (values, { resetForm, setErrors }) => {
+        axios.post('/api/users', values)
         .then((response) => {
-            // push data
+            // push data and bring the latest on top with unshift.
             users.value.unshift(response.data);
             // Clear the Modal and close it
-            form.name = '';
-            form.email = '';
-            form.password = '';
             $('#createUserModal').modal('hide');
+            resetForm();
         });
+
     }
 
     onMounted(() => {
@@ -55,41 +57,41 @@
                     </div>
                 </div>
             </div>
-        </div>
+    </div>
 
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <table class="table table-bordered">
-                        <thead class="thead-light">
-                            <tr>
-                                <th scope="col">Sr. #</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Joining Date</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">Options</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(user, index) in users" :key="user.id">
-                                <th scope="row">{{index + 1}}</th>
-                                <td>{{user.name}}</td>
-                                <td>{{user.email}}</td>
-                                <td>2023-01-15</td>
-                                <td>Default</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm">Edit</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Sr. #</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Joining Date</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(user, index) in users" :key="user.id">
+                            <th scope="row">{{index + 1}}</th>
+                            <td>{{user.name}}</td>
+                            <td>{{user.email}}</td>
+                            <td>2023-01-15</td>
+                            <td>Default</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Edit</button>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <!-- Modal -->
+    <!-- Modal -->
     <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -100,20 +102,21 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <Form ref = "form" @submit="createUser" :validation-schema="validationSchema" v-slot="errors">
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input v-model="form.name" type="text" class="form-control" id="name" placeholder="Enter full name">
-
+                            <Field name="name" type="text" class="form-control" :class="{'is-invalid': errors.name}" id="name" placeholder="Enter full name" />
+                            <span class="invalid-feedback">{{ errors.name }}</span>
                         </div>
                         <div class="form-group">
                             <label for="email1">Email address</label>
-                            <input v-model="form.email" type="email" class="form-control" id="email" placeholder="Enter email">
-
+                            <Field name="email" type="email" class="form-control" :class="{'is-invalid': errors.email}" id="email" placeholder="Enter email" />
+                            <span class="invalid-feedback">{{ errors.email }}</span>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input v-model = "password" type="password" class="form-control" id="password" placeholder="Password">
+                            <Field name="password" type="password" class="form-control" :class="{'is-invalid': errors.password}" id="password" placeholder="Password" />
+                            <span>{{ errors.password }}</span>
                         </div>
                         <!-- <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -121,9 +124,9 @@
                         </div> -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button @click="createUser" type="button" class="btn btn-success">Save</button>
+                            <button type="submit" class="btn btn-success">Save</button>
                         </div>
-                    </form>
+                    </Form>
                 </div>
             </div>
         </div>
